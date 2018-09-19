@@ -1,0 +1,7 @@
+p, dex, /auth/hello, GET
+p, dex, /login, POST
+p, admin, /login, POST
+p, user, /auth/ping, GET
+g, user_a, user
+g, user_b, user
+g, user_c, user
