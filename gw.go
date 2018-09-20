@@ -38,6 +38,7 @@ import (
 	//Authz 是 Gin 的认证中间件，它是基于 casbin 实现的
 	//"github.com/gin-contrib/authz"
 	//"reflect"
+	"gw/handler"
 )
 
 //定义一个内部全局的 db 指针用来进行认证，数据校验
@@ -130,12 +131,12 @@ func main() {
 	auth.Use(authMiddleware.MiddlewareFunc())
 	{
 		//如果是 /auth 组下的 /hello 就交给 helloHandler 来处理
-		auth.GET(v.GetString("testPath"), helloHandler)
+		auth.GET(v.GetString("testPath"), handler.H_hello)
 		//func (mw *GinJWTMiddleware) RefreshHandler(c *gin.Context)
 		//RefreshHandler can be used to refresh a token. The token still needs to be valid on refresh. Shall be put under an endpoint that is using the GinJWTMiddleware. Reply will be of the form {"token": "TOKEN"}.
 		//如果是 /auth 组下的 /refresh_token 就交给 RefreshHandler 来处理
 		auth.GET(v.GetString("refreshPath"), authMiddleware.RefreshHandler)
-		auth.GET("/ping", h_ping)
+		auth.GET("/ping", handler.H_ping)
 	}
 
 	r.Run(":" + v.GetString("port")) //在 0.0.0.0:配置端口 上启监听
