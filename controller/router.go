@@ -39,6 +39,7 @@ import (
 	//"github.com/gin-contrib/authz"
 	//"reflect"
 	"gw/handler"
+	"gw/model"
 )
 
 //定义一个内部全局的 db 指针用来进行认证，数据校验
@@ -77,12 +78,12 @@ func Init() {
 	//func (s *DB) AutoMigrate(values ...interface{}) *DB
 	//AutoMigrate run auto migration for given models, will only add missing fields, won't delete/change current data
 	//AutoMigrate 会自动将给定的模型进行迁移，只会添加缺失的字段，并不会删除或者修改当前的字段
-	db.AutoMigrate(&User{})
+	db.AutoMigrate(&model.User{})
 	//创建一个结构变量
-	user := User{}
+	user := model.User{}
 	//如果 db 中没有这条记录，就创建，如果有就忽略掉
 	if db.Where("user_id = ?", v.GetString("admin_name")).Find(&user).RecordNotFound() {
-		user := User{UserID: v.GetString("admin_name"), Password: v.GetString("admin_pass")}
+		user := model.User{UserID: v.GetString("admin_name"), Password: v.GetString("admin_pass")}
 		db.Create(&user)
 	}
 	//这里有一个坑，是通过看源码解决的

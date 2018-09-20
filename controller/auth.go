@@ -14,6 +14,7 @@ import (
 	"github.com/gin-gonic/gin"
 	//加入postgres的库
 	_ "github.com/jinzhu/gorm/dialects/postgres"
+	"gw/model"
 )
 
 
@@ -21,25 +22,25 @@ import (
 //定义一个回调函数，用来决断用户id和密码是否有效
 func authCallback( c *gin.Context) (interface{}, error) {
 	//userId string, password string,
-	var loginVals login
+	var loginVals model.Login
 			if err := c.ShouldBind(&loginVals); err != nil {
 				return "", jwt.ErrMissingLoginValues
 			}
 	uid := loginVals.Username
 	pw := loginVals.Password
 	//这里的通过从数据库中查询来判断是否为现存用户，生产环境下一般都会使用数据库来存储账号信息，进行检验和判断
-	user := User{} //创建一个临时的存放空间
+	user := model.User{} //创建一个临时的存放空间
 	//如果这条记录存在的的情况下
 	if !authDB.Where("user_id = ?", uid).Find(&user).RecordNotFound() {
 		//定义一个临时的结构对象
-		queryRes := User{} //创建一个临时的存放空间
+		queryRes := model.User{} //创建一个临时的存放空间
 		//将 user_id 为认证信息中的 密码找出来(目前密码是明文的，这个其实不安全，可以通过加盐哈希将结果进行对比的方式以提高安全等级，这里只作原理演示，就不搞那么复杂了)
 		//找到后放到前面定义的临时结构变量里
 		authDB.Where("user_id = ?", uid).Find(&queryRes)
 		//对比，如果密码也相同，就代表认证成功了
 		if queryRes.Password == pw {
 			//反馈相关信息和 true 的值，代表成功
-			return &login{
+			return &model.Login{
 				Username: uid,
 				Password: pw,
 			}, nil
@@ -64,7 +65,7 @@ func unAuthFunc(c *gin.Context, code int, message string) {
 }
 
 func payLoad(data interface{})  jwt.MapClaims {
-	if v, ok := data.(*login); ok {
+	if v, ok := data.(*model.Login); ok {
 		return jwt.MapClaims{
 			"id": v.Username,
 		}
